@@ -19,14 +19,3 @@
 .\build\main.o: rt-thread\include\rtm.h
 .\build\main.o: rt-thread\include\rtthread.h
 .\build\main.o: rt-thread\components\finsh\finsh_api.h
-.\build\main.o: rt-thread\components\drivers\include\rtdevice.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/ringbuffer.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/completion.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/dataqueue.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/workqueue.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/waitqueue.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/pipe.h
-.\build\main.o: rt-thread\components\drivers\include\rtdevice.h
-.\build\main.o: rt-thread\components\drivers\include\ipc/poll.h
-.\build\main.o: rt-thread\components\drivers\include\drivers/serial.h
-.\build\main.o: rt-thread\components\drivers\include\drivers/pin.h

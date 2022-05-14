@@ -1,75 +1,67 @@
+/* 
+ * Copyright (c) 2006-2018, RT-Thread Development Team 
+ * 
+ * SPDX-License-Identifier: Apache-2.0 
+ * 
+ * Change Logs: 
+ * Date           Author       Notes 
+ * 2018-08-24     yangjie      the first version 
+ */ 
+ 
+ /*
+ * 程序清单：相同优先级线程按照时间片轮番调度
+ *
+ * 这个例子中将创建两个线程，每一个线程都在打印信息
+ * 
+ */
+
 #include <rtthread.h>
-#include <rtdevice.h>
 
-#define THREAD_PRIORITY  25
-#define THREAD_STACK_SIZE  512
-#define THREAD_TIMESLICE  5
-static rt_thread_t tid1 = RT_NULL;
+#define THREAD_STACK_SIZE	1024
+#define THREAD_PRIORITY	    20
+#define THREAD_TIMESLICE    10
 
-/*线程 1 的入口函数,500ms打印一次计数值*/
-static void thread1_entry(void *parameter)
+/* 线程入口 */
+static void thread_entry(void* parameter)
 {
-    rt_uint32_t count = 0;//计数器归0
+    rt_uint32_t value;
+    rt_uint32_t count = 0;
 
+    value = (rt_uint32_t)parameter;
     while (1)
     {
-        /* 线程1采用低优先级运行，一直打印计数值 */
-        rt_kprintf("thread1 count: %d\n", count ++);//内核提供一个用于输出日志信息的接口
-        rt_thread_mdelay(500);
-    }
+        if(0 == (count % 5))
+        {           
+            rt_kprintf("thread %d is running ,thread %d count = %d\n", value , value , count);      
+
+            if(count > 200)
+                return;            
+        }
+         count++;
+     }  
 }
 
-ALIGN(RT_ALIGN_SIZE)   //栈对齐
-static char thread2_stack[1024];   
-static struct rt_thread thread2;
-
-
-/* 线程2入口，打印计数10 次后退出*/
-static void thread2_entry(void *param)
+int timeslice_sample(void)
 {
-    rt_uint32_t count = 0;//打印计数
+    rt_thread_t tid = RT_NULL;
+    /* 创建线程1 */
+    tid = rt_thread_create("thread1", 
+                            thread_entry, (void*)1, 
+                            THREAD_STACK_SIZE, 
+                            THREAD_PRIORITY, THREAD_TIMESLICE); 
+    if (tid != RT_NULL) 
+        rt_thread_startup(tid);
 
-    for (count = 0; count < 10 ; count++)
-    {
-        /* 线程2打印计数值 */
-        rt_kprintf("thread2 count: %d\n", count);
-    }
-    rt_kprintf("thread2 exit\n");
-    /* 线程2运行结束后也将自动被系统删除 */
-}
-
-
-/*用户代码的入口*/
-int main(void)
-{
-	/* 创建线程1，名称是thread1，入口是thread1_entry*/
-	/*动态线程thread1*/
-    tid1 = rt_thread_create("thread1",//名称
-                            thread1_entry, RT_NULL,//入口函数及参数
-                            THREAD_STACK_SIZE,//栈大小
-                            THREAD_PRIORITY, THREAD_TIMESLICE);//时间片大小
-    
-    /* 如果获得线程控制块，启动这个线程 */
-    if (tid1 != RT_NULL)
-        rt_thread_startup(tid1);
-		//就绪，按优先级
-
-		
-    /* 初始化线程2，名称是thread2，入口是thread2_entry */
-		/*静态线程thread2*/
-    rt_thread_init(&thread2,
-                   "thread2",
-                   thread2_entry,
-                   RT_NULL,
-                   &thread2_stack[0],
-                   sizeof(thread2_stack),
-                   THREAD_PRIORITY - 1, THREAD_TIMESLICE);
-									 /* 线程2优先级高 */
-    rt_thread_startup(&thread2);
-		/* 线程加入队列，执行调度*/
-									 
+    /* 创建线程2 */
+    tid = rt_thread_create("thread2", 
+                            thread_entry, (void*)2,
+                            THREAD_STACK_SIZE, 
+                            THREAD_PRIORITY, THREAD_TIMESLICE-5);
+    if (tid != RT_NULL) 
+        rt_thread_startup(tid);
+        
     return 0;
 }
 
 /* 导出到 msh 命令列表中 */
-MSH_CMD_EXPORT(main, experiment1);
+MSH_CMD_EXPORT(timeslice_sample, timeslice sample);

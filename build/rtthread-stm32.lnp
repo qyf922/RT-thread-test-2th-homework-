@@ -62,7 +62,7 @@
 ".\build\stm32f1xx_hal_pcd_ex.o"
 ".\build\startup_stm32f103xe.o"
 ".\build\clock.o"
-".\build\components.o"
+".\build\components_1.o"
 ".\build\device.o"
 ".\build\idle.o"
 ".\build\ipc.o"
